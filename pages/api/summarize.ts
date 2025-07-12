@@ -4,8 +4,6 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  console.log("API HIT"); // 👈 confirm API is running
-
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -17,16 +15,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-    const result = await model.generateContent(`Summarize the following scientific content:\n\n${text}`);
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+
+    const result = await model.generateContent(text);
     const response = result.response;
     const summary = response.text();
 
-    console.log("SUMMARY:", summary); // 👈 log it
-
     return res.status(200).json({ summary });
   } catch (error: any) {
-    console.error("Gemini Error:", error);
-    return res.status(500).json({ error: 'Failed to summarize text.' });
+    console.error("Gemini error:", error?.message || error);
+    return res.status(500).json({ error: error?.message || 'Failed to summarize text.' });
   }
 }
+
