@@ -7,16 +7,31 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   const handleSummarize = async () => {
-    setLoading(true);
+  setLoading(true);
+  setSummary('');
+  try {
     const res = await fetch('/api/summarize', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: inputText }),
     });
+
     const data = await res.json();
-    setSummary(data.summary);
+    console.log('RESPONSE:', data); // 👈 log it
+
+    if (!res.ok) {
+      setSummary('❌ ' + (data.error || 'Unknown error'));
+    } else {
+      setSummary(data.summary || 'No summary returned');
+    }
+  } catch (err) {
+    console.error('FETCH ERROR:', err);
+    setSummary('❌ Failed to connect to API');
+  } finally {
     setLoading(false);
+  }
   };
+
 
   return (
     <main style={{ maxWidth: 600, margin: '40px auto', padding: '20px' }}>
